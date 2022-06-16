@@ -142,3 +142,20 @@ Switch(config)#vtp password cisco
 Setting device VLAN database password to cisco 
 Switch(config)#int range fastEthernet 0/1-2 
 Switch(config-if-range)#switchport mode trunk
+
+
+##########################################
+OSPF
+
+###router2
+router ospf 2
+network 10.0.0.0 0.255.255.255 area 0
+network 12.0.0.0 0.255.255.255 area 0
+network 192.16.2.0 0.0.0.255 area 0
+exit
+exit
+
+###router2
+conf t
+router ospf 3
+ip address 192.168.0.4
