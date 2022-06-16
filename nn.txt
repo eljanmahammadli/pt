@@ -1,0 +1,144 @@
+### INTERVLAN ###
+Switch>en
+Switch#conf t
+Switch(config)#vlan 12
+Switch(config-vlan)#name IT
+Switch(config-vlan)#exit
+Switch(config)#vlan 45
+Switch(config-vlan)#name HR
+Switch(config-vlan)#exit
+Switch(config)#vlan 60
+Switch(config-vlan)#name DESIGN
+Switch(config-vlan)#exit
+Switch(config)#int fa0/1 
+Switch(config-if)#switchport access vlan 12
+Switch(config-if)#exit
+Switch(config)#int fa0/2
+Switch(config-if)#switchport access vlan 45
+Switch(config-if)#exit
+Switch(config)#int fa0/3
+Switch(config-if)#switchport access vlan 60
+Switch(config-if)#exit
+Switch#show vlan
+
+
+Switch#conf t
+Switch(config)#int gig 0/1
+Switch(config-if)#switchport mode trunk
+Switch(config-if)#exit
+Switch(config)#exit
+Switch#wr
+
+
+### GO TO ROUTER ###
+Router>en
+Router#conf t
+Router(config)#int gig0/0.12
+Router(config-subif)#encap dot1q 12
+Router(config-subif)#ip address 192.168.10.1 255.255.255.0
+Router(config-subif)#exit
+Router(config)#int gig0/0.45
+Router(config-subif)#encap dot1q 45
+Router(config-subif)#ip address 192.168.20.2 255.255.255.0
+Router(config-subif)#exit
+Router(config)#int gig0/0.60
+Router(config-subif)#encap dot1q 60
+Router(config-subif)#ip address 10.10.0.2 255.255.255.0
+Router(config-subif)#exit
+
+### Make "ON" Gig0/0
+
+### SET IP Address to PCs with default gateway of VLAN's IP
+
+
+##################################################################
+
+### VLAN ###
+Sw(config)#vlan 10
+Sw(config-vlan)#name subnet 10
+Sw(config-vlan)#exit
+Sw(config)#vlan 10
+Sw(config-vlan)#name subnet 10
+Sw(config-if)#int eth0/2
+Sw(config-if)#switchport access vlan 10
+Sw(config-if)#switchport mode access
+
+## DO FOR ALL PCs connected using above 
+
+
+#################################################################
+### DHCP POOL ###
+### ROUTER -> SWITCH -> 3 PCS
+
+### ROUTER CLI ###
+Router>en
+Router#conf t
+Router(config)#int gig0/0
+Router(config-if)#ip address 192.168.0.1 255.255.255.0
+Router(config-if)#no shut
+Router(config-if)#exit
+Router(config)#ip dhcp pool MY-POOL
+Router(dhcp-config)#network 192.168.0.0 255.255.255.0
+Router(dhcp-config)#default-router 192.168.0.254
+Router(dhcp-config)#dns-server 192.168.0.1
+Router(dhcp-config)#exit
+Router(config)#exit
+Router#wr
+
+ACTIVATE DHCP in PCs
+
+###################################################################
+
+### VTP ###
+VTP 
+#server switch 
+Switch>en 
+Switch#conf t 
+Switch(config)#vlan 10 
+Switch(config-vlan)#name vlan10 
+Switch(config- vlan)#exit 
+Switch(config)#vlan 20 
+Switch(config-vlan)#name vlan20 
+Switch(config- vlan)#exit 
+Switch(config)#vtp mode server 
+Device mode already VTP SERVER. 
+Switch(config)#vtp domain khazar.org 
+Changing VTP domain name from NULL to khazar.org 
+Switch(config)#vtp password cisco 
+Setting device VLAN database password to cisco 
+# create trunk mode between all switches 
+Switch(config)#int range fastEthernet 0/1-3 
+Switch(config-if-range)#switchport mode trunk 
+Switch#show vlan 
+ 
+#client switch 
+Switch>en 
+Switch#conf t 
+Enter configuration commands, one per line. End with CNTL/Z. 
+Switch(config)#vtp mode client 
+Setting device to VTP CLIENT mode. 
+Switch(config)#vtp domain khazar.org 
+Changing VTP domain name from NULL to khazar.org 
+Switch(config)#vtp password cisco 
+Setting device VLAN database password to cisco 
+Switch(config)#exit 
+Switch#show vlan 
+Switch(config)#int fastEthernet 0/2 
+Switch(config-if)#switchport access vlan 10 
+Switch(config-if)#switchport voice vlan 20 
+Switch(config-if)#exit 
+ 
+ 
+ 
+# TRANSPARENT switch 
+Switch>en 
+Switch#conf t 
+Enter configuration commands, one per line. End with CNTL/Z. 
+Switch(config)#vtp mode transparent  
+Setting device to VTP TRANSPARENT mode. 
+Switch(config)#vtp domain khazar.org 
+Domain name already set to khazar.org. 
+Switch(config)#vtp password cisco 
+Setting device VLAN database password to cisco 
+Switch(config)#int range fastEthernet 0/1-2 
+Switch(config-if-range)#switchport mode trunk
